@@ -1,54 +1,82 @@
-#Space invader BEYOND beta ver 0.0.1
-#space invader BEYOND beta var 0.1.1 creat game screen & exit button
-#import everything that need for project
-from pygame import *
-import sys
-from random import randint, choice
-from os.path import abspath, dirname
+#space invader BOYOND beta 0.2.2 scrolling background
+from pygame import*
+import sys 
+from random import randint, randrange
 
-#import file  filename.xxx from /folder/
-base_path = abspath(dirname(__file__))
-img_path = base_path + '/images/'
+init()
 
-#set color (R, G, B)
+#score & displaysize
+score = 0
+dis_width = 800
+dis_height = 600
+
+#set display!
+screen = display.set_mode((dis_width, dis_height))
+display.set_caption('Space Invader BEYOND')
+clock = time.Clock()
+
+#base color
 black = (0, 0, 0)
 
-#set size of screen
-screen_width = 800
-screen_height = 600
+#player info
+ship = image.load('player.png')
+ply_width = 62
 
-game_end = False
+bg = image.load('background.png').convert()
 
-#setup game screen
-SCREEN = display.set_mode((screen_width, screen_height))
+comet = image.load('comet.png')
 
-#lets import image
-#use list to make it easier to call
-img_name = ['inv01-1', 'player']
-IMAGES = {name:image.load(img_path + '{}.png'.format(name)) 
-            for name in img_name}
+#blit player to screen
+def play(x, y):
+    screen.blit(ship, (x, y))
 
-class SpaceInvaders(object):
-    def __init__(self):
-        self.screen = SCREEN
-        
-    def should_exit(evt):
-        return evt.type == QUIT or (evt.type == KEYUP and evt.ket == K_ESCAPE)
+#main game loop
+def game_loop():
+    ply_spd = 0 
+    ply_x = 350
+    ply_y = 488
 
-    def input_check(self):
-        self.keys = key.get_pressed()
-        for e in event.get():
-            if e.type == QUIT:
+    rel_y = 0
+    bg_y = 600
+
+    thg_srtx = randrange(50, dis_width - 50)
+    thg_srty = -600
+
+    while True:
+        for evt in event.get():
+            if evt.type == QUIT:
+                quit()
                 sys.exit()
-                
+            if evt.type == KEYDOWN:
+                if evt.key == K_LEFT:
+                    ply_spd = -3
+                if evt.key == K_RIGHT:
+                    ply_spd = 3
+                if evt.key == K_ESCAPE:
+                    quit()
+                    sys.exit()
+            if evt.type == KEYUP:
+                if evt.key == K_RIGHT or evt.key == K_LEFT:
+                    ply_spd = 0
 
-    #main game loop
-    def game_loop(self):
-        while not game_end:
-            self.screen.fill(black)    
-            self.input_check()
 
-if __name__ == '__main__':
-    game = SpaceInvaders()
-    game.game_loop()
-    
+        rel_y = (bg_y % bg.get_rect().width)
+
+        ply_x += ply_spd
+        screen.fill(black)
+
+        screen.blit(bg, (0, (rel_y - bg.get_rect().width)))
+        if rel_y < dis_height:
+            screen.blit(bg, (0, rel_y))
+        bg_y += 1
+
+        play(ply_x, ply_y)
+
+        if ply_x > dis_width - (ply_width+50) or ply_x < 50:
+            ply_spd = 0
+
+            
+        display.update()
+        clock.tick(120)
+
+game_loop()
