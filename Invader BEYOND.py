@@ -31,7 +31,6 @@ striker = image.load('inv03.png')
 ranger = image.load('inv01.png')
 bullet = image.load('bullet.png')
 enbullet = image.load('enbullet.png')
-###############
 
 def wait():
     keys = True
