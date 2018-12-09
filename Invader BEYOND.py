@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 #space invader BOYOND beta 0.8.7 
 #fix bullet bug and fix collision 
+=======
+#space invader BOYOND beta 0.7.3 
+#add bullet & check collision bullet
+>>>>>>> 16dc52c3a997ac0b6de9705eca9f04a2c5098b24
 from pygame import*
 import sys 
 from random import randint, randrange
@@ -30,8 +35,11 @@ comet = image.load('comet.png')
 striker = image.load('inv03.png')
 ranger = image.load('inv01.png')
 bullet = image.load('bullet.png')
+<<<<<<< HEAD
 enbullet = image.load('enbullet.png')
+=======
 ###############
+>>>>>>> 16dc52c3a997ac0b6de9705eca9f04a2c5098b24
 
 def wait():
     keys = True
@@ -87,9 +95,15 @@ def rand_enemy():
     if species == 1:
         return [1, randint(50, dis_width - (50 + 62)), -(randint(200, 600)), True , 62, 62]
     if species == 2:
+<<<<<<< HEAD
         return [2, randint(50, dis_width - (50 + 74)), -74, True, 37, 45]
     if species == 3:
         return [3, randrange(100, dis_width - (100 + 39), 50), 20, True, 39, 34]
+=======
+        return [2, randint(50, dis_width - (50 + 74)), -74, True, 74, 90]
+    if species == 3:
+        return [3, randrange(51, dis_width - (50+79), 124), 20, True, 78, 68]
+>>>>>>> 16dc52c3a997ac0b6de9705eca9f04a2c5098b24
 
 #main game loop#
 def game_loop(score):
@@ -102,7 +116,11 @@ def game_loop(score):
     ply_spd = 0 
     ply_x = 350
     ply_y = 488
+<<<<<<< HEAD
     ply_width = 62
+=======
+    ply_width = 93
+>>>>>>> 16dc52c3a997ac0b6de9705eca9f04a2c5098b24
     #background setting#
     rel_y = 0
     bg_y = 600
@@ -157,7 +175,11 @@ def game_loop(score):
                 
         #blit enemy & return score if you died#
             for i in enemy_box:
+<<<<<<< HEAD
                 if collisions(ply_x, ply_y, ply_width, ply_width, i[1], i[2], i[4], i[5]):
+=======
+                if collisions(i[1], i[2], i[4], i[5], ply_x, ply_y, 92, 92):
+>>>>>>> 16dc52c3a997ac0b6de9705eca9f04a2c5098b24
                         return score
                 ###comet###
                 if i[0] == 1:
@@ -189,9 +211,15 @@ def game_loop(score):
 
         for i in range(len(bullet_box)-1, -1, -1):
             for j in range(len(enemy_box)-1, -1, -1):
+<<<<<<< HEAD
                 bullet_box[i][1] -= 3
                 screen.blit(bullet, (bullet_box[i][0], bullet_box[i][1]))
                 if collisions(enemy_box[j][1], enemy_box[j][2], enemy_box[j][4], enemy_box[j][5], bullet_box[i][0], bullet_box[i][1], 10, 16):
+=======
+                bullet_box[i][1] -= 5
+                screen.blit(bullet, (bullet_box[i][0], bullet_box[i][1]))
+                if collisions(enemy_box[j][1], enemy_box[j][2], enemy_box[j][4], enemy_box[j][5], bullet_box[i][0], bullet_box[i][1], 25, 40):
+>>>>>>> 16dc52c3a997ac0b6de9705eca9f04a2c5098b24
                     if enemy_box[j][0] == 1:
                         score += 60
                     elif enemy_box[j][0] == 2:
@@ -201,7 +229,10 @@ def game_loop(score):
                     del enemy_box[j]
                     del bullet_box[i]
                     num_enemy -= 1
+<<<<<<< HEAD
                     break
+=======
+>>>>>>> 16dc52c3a997ac0b6de9705eca9f04a2c5098b24
 
         #blit player to screen#
         screen.blit(ship, (ply_x, ply_y))
