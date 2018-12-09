@@ -1,5 +1,5 @@
-#space invader BOYOND beta 0.6.1 
-#crate a start & game over screen
+#space invader BOYOND beta 0.7.3 
+#add bullet & check collision bullet
 from pygame import*
 import sys 
 from random import randint, randrange
@@ -70,9 +70,10 @@ def start_screen():
     wait()
 
 #crate gameover screen#
-def game_over():
+def game_over(score):
     screen.blit(bg, (0, 0))
     draw_text('GAME OVER', 48, white, dis_width / 2, 100)
+    draw_text('Your score is: ' + str(score), 30, green, dis_width / 2, dis_height / 2)
     draw_text('press any button to go to main menu', 22, red, dis_width / 2, dis_height * (4/5))
     display.flip()
     wait()
@@ -89,9 +90,10 @@ def rand_enemy():
         return [3, randrange(51, dis_width - (50+79), 124), 20, True, 78, 68]
 
 #main game loop#
-def game_loop():
+def game_loop(score):
     #enemy setting#
     enemy_box = []
+    bullet_box = []
     num_enemy = 0
     max_enemy = 3
     #player setting#
@@ -114,6 +116,8 @@ def game_loop():
                     ply_spd = -3
                 if evt.key == K_RIGHT:
                     ply_spd = 3
+                if evt.key == K_SPACE:
+                    bullet_box.append([ply_x + 41, ply_y + 16])
                 if evt.key == K_ESCAPE:
                     quit()
                     sys.exit()
@@ -150,7 +154,7 @@ def game_loop():
         #blit enemy & return score if you died#
             for i in enemy_box:
                 if collisions(i[1], i[2], i[4], i[5], ply_x, ply_y, 92, 92):
-                        return
+                        return score
                 ###comet###
                 if i[0] == 1:
                     i[2] += 5
@@ -177,20 +181,39 @@ def game_loop():
                     screen.blit(ranger, (i[1], i[2]))
                 ##########
 
-        #######################################
+        ######################################
+
+        for i in range(len(bullet_box)-1, -1, -1):
+            for j in range(len(enemy_box)-1, -1, -1):
+                bullet_box[i][1] -= 5
+                screen.blit(bullet, (bullet_box[i][0], bullet_box[i][1]))
+                if collisions(enemy_box[j][1], enemy_box[j][2], enemy_box[j][4], enemy_box[j][5], bullet_box[i][0], bullet_box[i][1], 25, 40):
+                    if enemy_box[j][0] == 1:
+                        score += 60
+                    elif enemy_box[j][0] == 2:
+                        score += 100
+                    elif enemy_box[j][0] == 3:
+                        score += 30
+                    del enemy_box[j]
+                    del bullet_box[i]
+                    num_enemy -= 1
+
         #blit player to screen#
         screen.blit(ship, (ply_x, ply_y))
         if ply_x > dis_width - (ply_width+40) or ply_x < 50:
             ply_spd = 0
         #######################
+        
+        draw_text("SCORE: " + str(score), 22, white, 60, 20)
         display.update()
         clock.tick(120)
 
 def main_game():
+    score = 0
     while True:
         start_screen()
-        game_loop()
-        game_over()
+        score = game_loop(0)
+        game_over(score)
 
 
 main_game()
