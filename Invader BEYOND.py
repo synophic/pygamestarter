@@ -1,15 +1,15 @@
-<<<<<<< HEAD
-#space invader BOYOND beta 0.8.7 
-#fix bullet bug and fix collision 
-=======
-#space invader BOYOND beta 0.7.3 
-#add bullet & check collision bullet
->>>>>>> 16dc52c3a997ac0b6de9705eca9f04a2c5098b24
+#space invader BOYOND beta 0.9.2 
+#make enemy shot & add more enemy every 500 score 
 from pygame import*
 import sys 
 from random import randint, randrange
 
 init()
+
+#path to import file from folder#
+BASE_PATH = abspath(dirname(__file__))
+IMAGE_PATH = BASE_PATH + '/images/'
+#################################
 
 ##display##
 dis_width = 800
@@ -29,17 +29,14 @@ blue = (0, 0, 255)
 ##############
 
 ##import image##
-ship = image.load('player.png')
-bg = image.load('background.png').convert()
-comet = image.load('comet.png')
-striker = image.load('inv03.png')
-ranger = image.load('inv01.png')
-bullet = image.load('bullet.png')
-<<<<<<< HEAD
-enbullet = image.load('enbullet.png')
-=======
+ship = image.load(IMAGE_PATH + 'player.png')
+bg = image.load(IMAGE_PATH + 'background.png').convert()
+comet = image.load(IMAGE_PATH + 'comet.png')
+striker = image.load(IMAGE_PATH + 'inv03.png')
+ranger = image.load(IMAGE_PATH + 'inv01.png')
+bullet = image.load(IMAGE_PATH + 'bullet.png')
+enbullet = image.load(IMAGE_PATH + 'enbullet.png')
 ###############
->>>>>>> 16dc52c3a997ac0b6de9705eca9f04a2c5098b24
 
 def wait():
     keys = True
@@ -93,39 +90,30 @@ def rand_enemy():
     species = randint(1, 3)
     #[1:type, 2:x axis, 3:y axis]#
     if species == 1:
-        return [1, randint(50, dis_width - (50 + 62)), -(randint(200, 600)), True , 62, 62]
+        return [1, randint(50, dis_width - (50 + 62)), -(randint(200, 600)), True , 62, 62, 100]
     if species == 2:
-<<<<<<< HEAD
-        return [2, randint(50, dis_width - (50 + 74)), -74, True, 37, 45]
+        return [2, randint(50, dis_width - (50 + 74)), -74, True, 37, 45, 100]
     if species == 3:
-        return [3, randrange(100, dis_width - (100 + 39), 50), 20, True, 39, 34]
-=======
-        return [2, randint(50, dis_width - (50 + 74)), -74, True, 74, 90]
-    if species == 3:
-        return [3, randrange(51, dis_width - (50+79), 124), 20, True, 78, 68]
->>>>>>> 16dc52c3a997ac0b6de9705eca9f04a2c5098b24
+        return [3, randrange(100, dis_width - (100 + 39), 50), 60, True, 39, 34, 100]
 
 #main game loop#
 def game_loop(score):
     #enemy setting#
     enemy_box = []
-    bullet_box = []
+    enemy_bullet = []
     num_enemy = 0
     max_enemy = 3
     #player setting#
     ply_spd = 0 
     ply_x = 350
     ply_y = 488
-<<<<<<< HEAD
     ply_width = 62
-=======
-    ply_width = 93
->>>>>>> 16dc52c3a997ac0b6de9705eca9f04a2c5098b24
+    bullet_box = []
     #background setting#
     rel_y = 0
     bg_y = 600
 
-    timer = time.get_ticks()
+    checkpoint = 0
 
     while True:
         #check keyboard input#
@@ -139,7 +127,7 @@ def game_loop(score):
                 if evt.key == K_RIGHT:
                     ply_spd = 3
                 if evt.key == K_SPACE:
-                    bullet_box.append([ply_x + 41, ply_y + 16])
+                    bullet_box.append([ply_x + 26, ply_y + 5])
                 if evt.key == K_ESCAPE:
                     quit()
                     sys.exit()
@@ -162,8 +150,12 @@ def game_loop(score):
         if num_enemy != max_enemy:
             for i in range(num_enemy, max_enemy):
                 enemy_box.append(rand_enemy())
-            num_enemy = 3
+            num_enemy = max_enemy
         ###################
+
+        if checkpoint // 500 == 1:
+            max_enemy += 1
+            checkpoint -= 500
 
         #check if enemy go off the screen#
         else:
@@ -175,11 +167,8 @@ def game_loop(score):
                 
         #blit enemy & return score if you died#
             for i in enemy_box:
-<<<<<<< HEAD
+                i[6] -= 1
                 if collisions(ply_x, ply_y, ply_width, ply_width, i[1], i[2], i[4], i[5]):
-=======
-                if collisions(i[1], i[2], i[4], i[5], ply_x, ply_y, 92, 92):
->>>>>>> 16dc52c3a997ac0b6de9705eca9f04a2c5098b24
                         return score
                 ###comet###
                 if i[0] == 1:
@@ -204,35 +193,57 @@ def game_loop(score):
 
                 ##ranger##
                 if i[0] == 3:
+                    if i[6] % 100 == 0:
+                        if i[1] > dis_width - (100 + 49):
+                            i[3] = False
+                        elif i[1] < 100:
+                            i[3] = True
+                        if i[3]:
+                            i[1] += 40
+                        elif not i[3]:
+                            i[1] -= 40
+                    if i[6] <= 0:
+                        enemy_bullet.append([i[1] + 14, i[2] + 30])
+                        i[6] = 200
                     screen.blit(ranger, (i[1], i[2]))
                 ##########
 
         ######################################
 
+        #delete enemy bullet when it off the screen & make game over#
+        for i in range(len(enemy_bullet)-1, -1, -1):
+            enemy_bullet[i][1] += 2
+            screen.blit(enbullet, (enemy_bullet[i][0], enemy_bullet[i][1]))
+            if enemy_bullet[i][1] > dis_height:
+                del enemy_bullet[i]
+                break
+            if collisions(ply_x, ply_y, ply_width, ply_width, enemy_bullet[i][0], enemy_bullet[i][1], 10, 16):
+                return score
+        #############################################################
+
+        #delete player bullet when it hit enemy or off screen#
         for i in range(len(bullet_box)-1, -1, -1):
             for j in range(len(enemy_box)-1, -1, -1):
-<<<<<<< HEAD
                 bullet_box[i][1] -= 3
                 screen.blit(bullet, (bullet_box[i][0], bullet_box[i][1]))
+                if bullet_box[i][1] < 0:
+                    del bullet_box[i]
+                    break
                 if collisions(enemy_box[j][1], enemy_box[j][2], enemy_box[j][4], enemy_box[j][5], bullet_box[i][0], bullet_box[i][1], 10, 16):
-=======
-                bullet_box[i][1] -= 5
-                screen.blit(bullet, (bullet_box[i][0], bullet_box[i][1]))
-                if collisions(enemy_box[j][1], enemy_box[j][2], enemy_box[j][4], enemy_box[j][5], bullet_box[i][0], bullet_box[i][1], 25, 40):
->>>>>>> 16dc52c3a997ac0b6de9705eca9f04a2c5098b24
                     if enemy_box[j][0] == 1:
                         score += 60
+                        checkpoint += 60
                     elif enemy_box[j][0] == 2:
-                        score += 100
+                        score += 40
+                        checkpoint += 40
                     elif enemy_box[j][0] == 3:
                         score += 30
+                        checkpoint += 30
                     del enemy_box[j]
                     del bullet_box[i]
                     num_enemy -= 1
-<<<<<<< HEAD
                     break
-=======
->>>>>>> 16dc52c3a997ac0b6de9705eca9f04a2c5098b24
+        ######################################################
 
         #blit player to screen#
         screen.blit(ship, (ply_x, ply_y))
