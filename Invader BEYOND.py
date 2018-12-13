@@ -1,7 +1,7 @@
-#space invader BOYOND beta 0.10.1 add music
+#space invader BOYOND beta 0.11.3 add high score
 from pygame import*
 import sys
-from os.path import abspath, dirname
+from os.path import *
 from random import randint, randrange
 
 mixer.pre_init(44100, 16, 2, 4096)
@@ -11,6 +11,7 @@ init()
 BASE_PATH = abspath(dirname(__file__))
 IMAGE_PATH = BASE_PATH + '/images/'
 SOUND_PATH = BASE_PATH + '/sounds/'
+HS_FILE = 'highscore.txt'
 #################################
 
 ##display##
@@ -88,21 +89,29 @@ def collisions(x1, y1, w1, h1, x2, y2, w2, h2):
     return False
 
 #crate start screen#
-def start_screen():
+def start_screen(highscore):
     music_start.play(-1)
     screen.blit(bg, (0, 0))
     draw_text('SPACE INVADER BEYOND', 48, white, dis_width / 2, 100)
+    draw_text('HIGH SCORE: ' + str(highscore), 40, green, dis_width/2, dis_height/2)
     draw_text('press any button', 22, red, dis_width / 2, dis_height * (4 / 5))
     display.flip()
     wait()
     music_start.stop()
 
 #crate gameover screen#
-def game_over(score):
+def game_over(score, highscore):
     music_over.play(-1)
     screen.blit(bg, (0, 0))
     draw_text('GAME OVER', 48, white, dis_width / 2, 100)
-    draw_text('Your score is: ' + str(score), 30, green, dis_width / 2, dis_height / 2)
+    if score > highscore:
+        highscore = score
+        draw_text('NEW HIGH SCORE!!!', 50, red, dis_width / 2, dis_height / 2 - 30)
+        with open(join(BASE_PATH, HS_FILE), 'r+') as F:
+            F.write(str(score))
+    else:
+        draw_text('HIGH SCORE: ' + str(highscore), 50, green, dis_width / 2, dis_height / 2 - 60)
+    draw_text('Your score is: ' + str(score), 30, green, dis_width / 2, dis_height / 2 + 60)
     draw_text('press any button to go to main menu', 22, red, dis_width / 2, dis_height * (4/5))
     display.flip()
     wait()
@@ -286,11 +295,15 @@ def game_loop(score):
         clock.tick(120)
 
 def main_game():
-    score = 0
     while True:
-        start_screen()
+        with open(join(BASE_PATH, HS_FILE), 'r+') as F:
+            try:
+                highscore = int(F.read())
+            except:
+                highscore = 0
+        start_screen(highscore)
         score = game_loop(0)
-        game_over(score)
+        game_over(score, highscore)
 
 
 main_game()
