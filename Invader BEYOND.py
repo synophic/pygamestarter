@@ -1,14 +1,16 @@
-#space invader BOYOND beta 0.9.2 
-#make enemy shot & add more enemy every 500 score 
+#space invader BOYOND beta 0.10.1 add music
 from pygame import*
-import sys 
+import sys
+from os.path import abspath, dirname
 from random import randint, randrange
 
+mixer.pre_init(44100, 16, 2, 4096)
 init()
 
 #path to import file from folder#
 BASE_PATH = abspath(dirname(__file__))
 IMAGE_PATH = BASE_PATH + '/images/'
+SOUND_PATH = BASE_PATH + '/sounds/'
 #################################
 
 ##display##
@@ -37,6 +39,23 @@ ranger = image.load(IMAGE_PATH + 'inv01.png')
 bullet = image.load(IMAGE_PATH + 'bullet.png')
 enbullet = image.load(IMAGE_PATH + 'enbullet.png')
 ###############
+
+#import music#
+music_enmrush = mixer.Sound(SOUND_PATH + 'enemyrush.wav')
+music_enmfire = mixer.Sound(SOUND_PATH + 'enemyfire.wav')
+music_kill = mixer.Sound(SOUND_PATH + 'kill.wav')
+music_plyfire = mixer.Sound(SOUND_PATH + 'plyfire.wav')
+music_start = mixer.Sound(SOUND_PATH + 'gamestart.wav')
+music_game = mixer.Sound(SOUND_PATH + 'gaming.wav')
+music_over = mixer.Sound(SOUND_PATH + 'gameover.wav')
+##set volume##
+music_enmrush.set_volume(0.3)
+music_enmfire.set_volume(0.3)
+music_plyfire.set_volume(0.3)
+music_start.set_volume(0.5)
+music_game.set_volume(0.3)
+music_over.set_volume(0.5)
+##############
 
 def wait():
     keys = True
@@ -70,20 +89,24 @@ def collisions(x1, y1, w1, h1, x2, y2, w2, h2):
 
 #crate start screen#
 def start_screen():
+    music_start.play(-1)
     screen.blit(bg, (0, 0))
     draw_text('SPACE INVADER BEYOND', 48, white, dis_width / 2, 100)
     draw_text('press any button', 22, red, dis_width / 2, dis_height * (4 / 5))
     display.flip()
     wait()
+    music_start.stop()
 
 #crate gameover screen#
 def game_over(score):
+    music_over.play(-1)
     screen.blit(bg, (0, 0))
     draw_text('GAME OVER', 48, white, dis_width / 2, 100)
     draw_text('Your score is: ' + str(score), 30, green, dis_width / 2, dis_height / 2)
     draw_text('press any button to go to main menu', 22, red, dis_width / 2, dis_height * (4/5))
     display.flip()
     wait()
+    music_over.stop()
 
 #random type of enemy#
 def rand_enemy():
@@ -112,9 +135,10 @@ def game_loop(score):
     #background setting#
     rel_y = 0
     bg_y = 600
-
+    #checkpoint for increst enemy#
     checkpoint = 0
 
+    music_game.play(-1)
     while True:
         #check keyboard input#
         for evt in event.get():
@@ -128,6 +152,7 @@ def game_loop(score):
                     ply_spd = 3
                 if evt.key == K_SPACE:
                     bullet_box.append([ply_x + 26, ply_y + 5])
+                    music_plyfire.play()
                 if evt.key == K_ESCAPE:
                     quit()
                     sys.exit()
@@ -169,6 +194,7 @@ def game_loop(score):
             for i in enemy_box:
                 i[6] -= 1
                 if collisions(ply_x, ply_y, ply_width, ply_width, i[1], i[2], i[4], i[5]):
+                        music_game.stop()
                         return score
                 ###comet###
                 if i[0] == 1:
@@ -186,6 +212,7 @@ def game_loop(score):
                             i[1] += 1
                         elif i[1] >= ply_x and i[1] <= ply_x + 93:
                             i[3] = False
+                            music_enmrush.play()
                     elif not i[3]:
                         i[2] += 4
                     screen.blit(striker, (i[1], i[2]))
@@ -204,6 +231,7 @@ def game_loop(score):
                             i[1] -= 40
                     if i[6] <= 0:
                         enemy_bullet.append([i[1] + 14, i[2] + 30])
+                        music_enmfire.play()
                         i[6] = 200
                     screen.blit(ranger, (i[1], i[2]))
                 ##########
@@ -218,6 +246,7 @@ def game_loop(score):
                 del enemy_bullet[i]
                 break
             if collisions(ply_x, ply_y, ply_width, ply_width, enemy_bullet[i][0], enemy_bullet[i][1], 10, 16):
+                music_game.stop()
                 return score
         #############################################################
 
@@ -242,6 +271,7 @@ def game_loop(score):
                     del enemy_box[j]
                     del bullet_box[i]
                     num_enemy -= 1
+                    music_kill.play()
                     break
         ######################################################
 
